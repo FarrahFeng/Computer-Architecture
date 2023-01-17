@@ -1,11 +1,73 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <list>
+#include <unordered_map>
+#include <vector>
 using namespace std;
-#define DEBUG 1
+#define DEBUG 0
 
+
+class LRUCache
+{
+
+private:
+    int capacity;
+    list<int> cache;
+    unordered_map<int, list<int>::iterator> map;
+
+public:
+    LRUCache();
+    LRUCache(int capacity_)
+    {
+        capacity = capacity_;
+    }
+
+    // return false if doesn't exist in cache.
+    bool get(int key)
+    {
+        auto it = map.find(key); // return iterators
+        if (it == map.end())     // not found
+        {
+            return false;
+        }
+        // found data, need to update it(put the data to the end of cache list)
+        // Ex. 2 3 4 5 key 6 7
+        // => 2 3 4 5 6 7 key
+               
+        cache.splice(cache.end(), cache, it->second);
+        return true;
+    }
+
+    // displays contents of cache in Reverse Order
+    void display()
+    {
+        for (auto it = cache.rbegin(); it != cache.rend(); ++it)
+        {
+            cout << *it << " ";
+        }
+    }
+
+    void put(int key)
+    {
+        // 越久以前access的會在最前面，不斷把新的data放在最後面(push_back)
+        // 當cache list滿時，從最前面開始pop
+
+        if (cache.size() == capacity)
+        {
+            int first_key = cache.front();
+            cache.pop_front();
+            map.erase(first_key);
+        }
+
+        cache.push_back(key);
+        // if key exists, cover it with new data(at the end of cache list)
+        // unordered_map<int, list<int>::iterator> map;
+        map[key] = --cache.end();
+    }
+};
 string ref_list[10001];
-bool hit_or_miss[10001] = {0}; // hit:1, miss:0
+bool hit_or_miss[10001] = {0}; // hit: 1, miss: 0
 
 int main(int argc, char *argv[])
 {
@@ -107,29 +169,32 @@ int main(int argc, char *argv[])
     }
     file.close();
 
-    /********************* cache simulation **************************/
+    // cache implementation
     int miss_count = 0;
-    string cache[cache_sets][associativity];
-    bool NRU_list[cache_sets][associativity];
-    for (int i = 0; i < cache_sets; ++i)
-        for (int j = 0; j < associativity; ++j)
-            NRU_list[i][j] = 1;
+    // initialize Cache
+    vector<LRUCache> Cache;
+
+    for (int i = 0; i < cache_sets; i++)
+    {
+        LRUCache tmp2 = LRUCache(associativity);
+        Cache.push_back(tmp2);
+    }
 
     for (int i = 1; i < ref_num - 1; ++i)
     {
         string idxS;
-        string tag;
+        string tagS;
         // calculate tag
         int j = 0;
         for (int k = 0; k < tag_bit_count; j++, k++)
         {
-            tag += ref_list[i][j]; // ref_list : string
+            tagS += ref_list[i][j]; // ref_list : string
         }
 #if (DEBUG)
         cout << "---------" << endl;
         cout << "ref:" << i << " = " << ref_list[i] << endl;
         cout << "j: " << j << endl;
-        cout << "tag = " << tag << endl;
+        cout << "tag = " << tagS << endl;
         cout << "---------" << endl;
 #endif
         // calculate index
@@ -147,53 +212,25 @@ int main(int argc, char *argv[])
         }
 #if (DEBUG)
         cout << "idxS = " << idxS << endl;
-        cout << "tag = " << tag << endl;
+        cout << "tag = " << tagS << endl;
 #endif
         // convert string to integer with base 2
         int idx = stoi(idxS, 0, 2);
+        int tag = stoi(tagS, 0, 2);
 #if (DEBUG)
         cout << "idx = " << idx << endl;
         cout << "---------" << endl;
 #endif
 
-        bool hit = false;
-        for (int k = 0; k < associativity; k++)
+        if (Cache[idx].get(tag)) // retrun true if data already exists in list
         {
-            // 一個一個去比對，比對成功 => hit
-            if (cache[idx][k] == tag)
-            {
-                hit_or_miss[i] = true;
-                NRU_list[idx][k] = 0;
-                hit = true;
-                break;
-            }
+            hit_or_miss[i] = true;
         }
-        if (hit)
+        else    // doesn't exist in cache
         {
-            continue;
-        }
-
-        hit_or_miss[i] = false;
-        miss_count++;
-        // replacement policy: LRU
-        for (int a = 0; a < associativity; a++)
-        {
-            if (NRU_list[idx][a] == 1)
-            {
-                NRU_list[idx][a] = 0;
-                cache[idx][a] = tag;
-                break;
-            }
-            // flush
-            else if (a == associativity - 1 && NRU_list[idx][a] == 0)
-            {
-                for (int a = 0; a < associativity; ++a)
-                {
-                    NRU_list[idx][a] = 1;
-                }
-                cache[idx][0] = tag;
-                NRU_list[idx][0] = 0;
-            }
+            miss_count++;
+            hit_or_miss[i] = false;
+            Cache[idx].put(tag);
         }
     }
 
