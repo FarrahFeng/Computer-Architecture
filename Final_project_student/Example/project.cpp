@@ -2,7 +2,7 @@
 #include <fstream>
 #include <cmath>
 using namespace std;
-#define DEBUG 0
+#define DEBUG 1
 
 string ref_list[10001];
 bool hit_or_miss[10001] = {0}; // hit:1, miss:0
@@ -119,23 +119,25 @@ int main(int argc, char *argv[])
     {
         string idxS;
         string tag;
-
+        // calculate tag
         int j = 0;
-        for (int k = 0; k < tag_bit_count; ++j, ++k)
+        for (int k = 0; k < tag_bit_count; j++, k++)
         {
-            tag += ref_list[i][j];
-#if (DEBUG)
-            cout << "---------" << endl;
-            cout << "ref:" << i << " = " << ref_list[i] << endl;
-            cout << " j = " << j << endl;
-            cout << " tag = " << tag << endl;
-            cout << "---------" << endl;
-#endif
+            tag += ref_list[i][j]; // ref_list : string
         }
-        for (int k = 0; k < index_bit_count; ++j, ++k)
+#if (DEBUG)
+        cout << "---------" << endl;
+        cout << "ref:" << i << " = " << ref_list[i] << endl;
+        cout << "j: " << j << endl;
+        cout << "tag = " << tag << endl;
+        cout << "---------" << endl;
+#endif
+        // calculate index
+        for (int k = 0; k < index_bit_count; j++, k++)
         {
             idxS += ref_list[i][j];
-#if (DEBUG)
+#if (false)
+
             cout << "---------" << endl;
             cout << "ref:" << i << " = " << ref_list[i] << endl;
             cout << " j = " << j << endl;
@@ -147,6 +149,7 @@ int main(int argc, char *argv[])
         cout << "idxS = " << idxS << endl;
         cout << "tag = " << tag << endl;
 #endif
+        // convert string to integer with base 2
         int idx = stoi(idxS, 0, 2);
 #if (DEBUG)
         cout << "idx = " << idx << endl;
@@ -154,12 +157,13 @@ int main(int argc, char *argv[])
 #endif
 
         bool hit = false;
-        for (int a = 0; a < associativity; ++a)
+        for (int k = 0; k < associativity; k++)
         {
-            if (cache[idx][a] == tag)
+            // 一個一個去比對，比對成功 => hit
+            if (cache[idx][k] == tag)
             {
                 hit_or_miss[i] = true;
-                NRU_list[idx][a] = 0;
+                NRU_list[idx][k] = 0;
                 hit = true;
                 break;
             }
@@ -171,8 +175,8 @@ int main(int argc, char *argv[])
 
         hit_or_miss[i] = false;
         miss_count++;
-
-        for (int a = 0; a < associativity; ++a)
+        // replacement policy: LRU
+        for (int a = 0; a < associativity; a++)
         {
             if (NRU_list[idx][a] == 1)
             {
@@ -220,8 +224,8 @@ int main(int argc, char *argv[])
     for (int i = 0; i < ref_num; ++i)
     {
         string tmp;
-        
-        if (i == 0 | i == ref_num-1)
+
+        if (i == 0 | i == ref_num - 1)
         {
             tmp = "";
         }
@@ -233,7 +237,7 @@ int main(int argc, char *argv[])
         {
             tmp = " miss";
         }
-        
+
         file << ref_list[i] << tmp << endl;
     }
     file << endl;
