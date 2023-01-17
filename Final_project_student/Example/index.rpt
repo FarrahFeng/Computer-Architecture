@@ -7,11 +7,11 @@ Indexing bit count: 3
 Indexing bits: 4 3 2
 Offset bit count: 2
 
-.benchmark testcase1 miss
+.benchmark testcase1
 00101100 miss
 00100000 miss
 00101100 hit
 00100000 hit
-.end miss
+.end
 
 Total cache miss count: 2

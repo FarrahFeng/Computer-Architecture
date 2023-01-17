@@ -2,7 +2,7 @@
 #include <fstream>
 #include <cmath>
 using namespace std;
-#define DEBUG 1
+#define DEBUG 0
 
 string ref_list[10001];
 bool hit_or_miss[10001] = {0}; // hit:1, miss:0
@@ -220,15 +220,21 @@ int main(int argc, char *argv[])
     for (int i = 0; i < ref_num; ++i)
     {
         string tmp;
-        if (hit_or_miss[i] == true)
+        
+        if (i == 0 | i == ref_num-1)
         {
-            tmp = "hit";
+            tmp = "";
+        }
+        else if (hit_or_miss[i] == true)
+        {
+            tmp = " hit";
         }
         else
         {
-            tmp = "miss";
+            tmp = " miss";
         }
-        file << ref_list[i] << " " << tmp << endl;
+        
+        file << ref_list[i] << tmp << endl;
     }
     file << endl;
     file << "Total cache miss count: " << miss_count << endl;
