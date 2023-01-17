@@ -2,7 +2,7 @@
 #include <fstream>
 #include <cmath>
 using namespace std;
-#define DEBUG 1
+#define DEBUG 0
 
 string ref_list[10001];
 bool hit_or_miss[10001] = {0}; // hit:1, miss:0
