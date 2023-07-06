@@ -66,7 +66,6 @@ public:
         // if key exists, cover it with new data(at the end of cache list)
         // unordered_map<int, list<int>::iterator> map;
         map[key] = --cache.end();
-        // map[key] = cache.end();
     }
 };
 string ref_list[10001];
@@ -262,47 +261,14 @@ int main(int argc, char *argv[])
                 max_idx = i;
             }
         }
-        // 剩下的quality 都是0
-        /*
-
-        if (it != index_opt.end()) // found
-        {
-
-        }
-        else
-        {
-            tagS += ref_list[i][j];
-        }
-        */
-       // increasing order
-        cout << "MAX: " << max_idx << endl;
-        auto it = find(index_opt.begin(), index_opt.end(), max_idx);
-        int l;
-        if (it != index_opt.end()) // found
-        {
-            int excep; 
-            for (l = 0; l < set_bits; l++)
-            {
-                auto nex = find(index_opt.begin(), index_opt.end(), l);
-                if (nex == index_opt.end()) // not found
-                {
-                    break;
-                }
-            }
-            index_opt.push_back(l);
-        }
-        else
-        {
-            index_opt.push_back(max_idx);
-        }
-
+        index_opt.push_back(max_idx);
         opt_idx_cnt++;
     }
     // 升序
     sort(index_opt.begin(), index_opt.end());
     // sort 完 MSB to LSB
 
-#if (true)
+#if (OPTDEBUG)
     cout << "print index vector\n";
     for (auto it = index_opt.begin(); it != index_opt.end(); ++it)
     {
@@ -340,8 +306,7 @@ int main(int argc, char *argv[])
                 tagS += ref_list[i][j];
             }
         }
-        cout << "tag = " << tagS << "  "
-             << "idxS = " << idxS << endl;
+        cout << "finish produce tagS and idxS\n";
 #if (DEBUG)
         cout << "---------" << endl;
         cout << "ref:" << i << " = " << ref_list[i] << endl;
@@ -388,16 +353,11 @@ int main(int argc, char *argv[])
     file << "Indexing bit count: " << index_bit_count << endl;
     file << "Indexing bits:";
     // 要處理 儲存的值是MSB to LSB
-    for (int i = 0; i < index_bit_count; i++)
-    {
-        file << " " << (address_bits-1)- index_opt[i];
-    }
-    /*
     for (int i = index_bit_count - 1; i >= 0; i--)
     {
         file << " " << index_bit[i];
     }
-    */
+    
     file << endl;
     file << "Offset bit count: " << offset_bit_count << endl;
     file << endl;

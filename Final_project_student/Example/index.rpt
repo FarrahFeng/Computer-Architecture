@@ -4,7 +4,7 @@ Associativity: 1
 Block size: 4
 
 Indexing bit count: 3
-Indexing bits: 4 3 2
+Indexing bits: 7 3 2
 Offset bit count: 2
 
 .benchmark testcase1
